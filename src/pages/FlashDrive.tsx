@@ -9,6 +9,13 @@ import CodeInfoCard from "@/components/CodeInfoCard";
 import { contentCategories, getCodeInfo } from "@/components/ContentLibrary";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  ArcadeGame, 
+  PuzzleGame, 
+  HorrorGame, 
+  Effect3D,
+  SecretDecoder 
+} from "@/components/GameLibrary";
 
 const FlashDrive = () => {
   const [activeComponent, setActiveComponent] = useState<string | null>(null);
@@ -64,14 +71,34 @@ const FlashDrive = () => {
         setActiveComponent("game");
         break;
       default:
-        // Random code from 6 to 2736
+        // Handle various types of content based on code info
         const codeNum = parseInt(code);
         if (!isNaN(codeNum) && codeNum >= 6 && codeNum <= 2736) {
-          // Show a message for these codes
-          setActiveComponent("unimplemented");
-          
-          // Get the detailed code info
           const codeInfo = getCodeInfo(code);
+          
+          if (codeInfo.category === 'games') {
+            if (codeNum % 3 === 0) {
+              setActiveComponent("arcadeGame");
+            } else if (codeNum % 3 === 1) {
+              setActiveComponent("puzzleGame");
+            } else {
+              setActiveComponent("game");
+            }
+          } else if (codeInfo.category === 'horror') {
+            setActiveComponent("horrorGame");
+          } else if (codeInfo.category === '3d') {
+            setActiveComponent("3dEffect");
+          } else if (codeInfo.category === 'secret') {
+            setActiveComponent("secretDecoder");
+          } else if (codeInfo.category === 'videos') {
+            setActiveComponent("video");
+          } else if (codeInfo.category === 'music') {
+            setActiveComponent("music");
+          } else {
+            // Default fallback
+            setActiveComponent("arcadeGame");
+          }
+          
           setCurrentCodeInfo(codeInfo);
         } else {
           alert(`Неизвестный код: ${code}`);
@@ -184,24 +211,40 @@ const FlashDrive = () => {
       {activeComponent === "menu" && <MainMenu onClose={handleCloseComponent} />}
       {activeComponent === "clicker" && <ClickerGame onClose={handleCloseComponent} />}
       {activeComponent === "game" && <SimpleGame onClose={handleCloseComponent} />}
-      {activeComponent === "unimplemented" && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 p-6 rounded-lg max-w-md w-full border border-slate-700">
-            <h2 className="text-xl font-bold mb-4 text-blue-400">{currentCodeInfo?.title}</h2>
-            <p className="text-slate-300 mb-6">{currentCodeInfo?.description}</p>
-            <div className="text-sm text-slate-500 mb-4">
-              Этот контент находится в разработке и будет доступен в ближайших обновлениях.
-              <br />
-              Код: {lastCode} | Категория: {contentCategories.find(c => c.id === currentCodeInfo?.category)?.name || 'Неизвестно'}
-            </div>
-            <Button 
-              onClick={handleCloseComponent}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              Закрыть
-            </Button>
-          </div>
-        </div>
+      {activeComponent === "arcadeGame" && (
+        <ArcadeGame 
+          onClose={handleCloseComponent} 
+          code={lastCode} 
+          title={currentCodeInfo?.title || "Аркадная игра"} 
+        />
+      )}
+      {activeComponent === "puzzleGame" && (
+        <PuzzleGame 
+          onClose={handleCloseComponent} 
+          code={lastCode} 
+          title={currentCodeInfo?.title || "Головоломка"} 
+        />
+      )}
+      {activeComponent === "horrorGame" && (
+        <HorrorGame 
+          onClose={handleCloseComponent} 
+          code={lastCode} 
+          title={currentCodeInfo?.title || "Хоррор"} 
+        />
+      )}
+      {activeComponent === "3dEffect" && (
+        <Effect3D 
+          onClose={handleCloseComponent} 
+          code={lastCode} 
+          title={currentCodeInfo?.title || "3D Эффект"} 
+        />
+      )}
+      {activeComponent === "secretDecoder" && (
+        <SecretDecoder 
+          onClose={handleCloseComponent} 
+          code={lastCode} 
+          title={currentCodeInfo?.title || "Секретный декодер"} 
+        />
       )}
     </div>
   );
